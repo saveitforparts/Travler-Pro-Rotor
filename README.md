@@ -4,6 +4,7 @@ Multi-axis antenna rotor using Winegard "Trav'ler Pro" satellite dish
 Gabe Emerson / Saveitforparts 2025. Email: gabe@saveitforparts.com
 
 For systems using the Trav'ler Pro IDU (Indoor Unit) with USB Port on the back. 
+(This IDU *may* work with older / other Trav'ler models, but I have not tested that. 
 
 For older models with RJ-6 "phone jack" serial interface, see https://github.com/saveitforparts/Travler_Rotor
 
@@ -19,15 +20,21 @@ supply, if the original is missing then something around 48-52VDC should work.
 
 Note there are several versions of the Trav'ler dish and this code has only been tested with the SK2DISH. 
 
+*IMPORTANT NOTE ON PHYSICAL ELEVATION LIMIT*
+The Trav'ler Pro SK2DISH appears to have a hardware elevation limit of 75 degrees, even after overriding the "safe" 
+limits in the nvs firmware menu. This makes it less suitable for tracking low-Earth-orbit satellites. 
+It may be possible to modify the mount or the dish hardware, but I would recommend looking for an older model like the
+LG-2112 that can elevate fully to 90 degrees. 
+
 This code is experimental and will probably void the warranty on any antenna you try it with. Use at your own risk! 
 
 
 
 **Applications:**
 
-This antenna works as a general-purpose az/el rotor, and could have skew added to the code if desired. I have been using
-my Trav'ler dish as an S-band LEO weather satellite tracker. It can also be used to point at GEO satellites, which is closer
-to the original intended use. 
+This antenna works as a general-purpose az/el rotor, and could have skew added to the code if desired. I have used 
+Trav'ler antennas as S-band and L-Band LEO weather satellite trackers. It can also be used to point at GEO satellites, 
+which is closer to the original intended use. 
 
 The code could be adapted for other purposes like sky surveys, Wifi or other RF surveys, etc. See my other Github projects
 for some example sky surveys / radio telescope implementations using similar antennas. 
@@ -39,7 +46,6 @@ has some speed and motion limits which might not make it suitable for every appl
 
 The stock LNB should be replaced with a feed appropriate to whatever frequency you intend to use. For example, I use 3-D 
 printed helical feeds designed by DerekSGC for L and S-band. These can be found at https://www.thingiverse.com/thing:4980180
-
 
 The internal coax cable should not be used unless you disable / bypass the onboard power injector. Otherwise 14-18VDC will
 be supplied to the feed/LNA, which will kill 5VDC equipment. Technically the internal wiring is the wrong impedance for SDR use,
@@ -66,7 +72,9 @@ local computer).
 
 Once connected to the firmware, some basic commands are:
 - "?": List available commands
-- "odu" Connect to the ODU (the antenna brain, vs the IDU black box. The following commands are only on the ODU.
+- "odu" Connect to the ODU (the antenna brain, vs the IDU black box.
+
+  The following commands are only on the ODU:
 - "mot": enter the motor submenu
 - "a" (from within the motor submenu): Show current dish position, or set desired position by specifying motor # and degrees. 
 - "g" (from within motor submenu): go to a specified azimuth/elevation/skew (Some firmware has a typo listing az/sk/el). 
@@ -84,18 +92,17 @@ multiple motor-related submenus that all behave slightly differently.
 
 Physical and Firmware limitations:
 
-The Tra'ler can physically move past 0 degrees and 90 degrees in elevation, but the firmware doesn't like to go below 15 
-degrees. This is likely a built-in safety feature to keep it from impacting other objects on an RV roof. There are two
-options to address this:
+The Trav'ler can physically move past 0 degrees elevation (but not past 75 degrees for the SK2DISH model). 
+The firmware doesn't like to go below 12 degrees. This is likely a built-in safety feature to keep it from impacting other
+objects on an RV roof. There are two options to address this:
 
-1: I have put in a soft-coded limit of 15 degrees elevation in my code, which you can enable by un-commenting lines 116,
-117, 124, and 125 of travler_pro_rotor.py. I recommend telling Gpredict that the rotor's minimum elevation is 15 degrees.
+1: I have put in a soft-coded limit of 15 degrees elevation in my code, which you can enable by un-commenting lines 123,
+124, 131, and 132 of travler_pro_rotor.py. I recommend telling Gpredict that the rotor's minimum elevation is 15 degrees.
 
 2: You can edit the nvs settings in the firmware. Make sure your dish won't physically collide with anything at the new
-minimum elevation! You will need to enter the firmware as described above, then the "nvs" submenu. Type the following:
-"e 125 0"
-"e 127 0"
-This sets both the search and safe minimums to 0 elevation. Type "s" to save the new setting, "q" to return to the main
+minimum elevation! You will need to enter the firmware as described above, then the "nvs" submenu. Type "d" to list some
+of the nvs settings, continue typing "d" until you find the entries for Min and Max EL settings. Edit by typing "e" followed
+by the entry and the new value (for example "e 125 0"). Type "s" to save the new setting, "q" to return to the main
 menu, and then "reboot" to use the new minimum elevation. 
 
 When using the "g" method to operate the motors, the dish will halt/abort movement if a new command (or any keystroke / 
@@ -105,6 +112,7 @@ When using the "a" method to operate motors, the dish will wait until the curren
 motor command (in the case of the AZ and EL motors. I believe the Skew / SK motor can run simultaneously with one
 of the others).  
 
+On the Trav'ler Pro / SK2DISH, the motors will stall if attempting to elevate past 75 degrees, and may lock up the system. 
 
 Cable Wrap:
 
@@ -136,7 +144,6 @@ Top row: Green, Yellow, Orange.
 
 Bottom row: Red, Brown, Black. 
 
-![IDU back](images/idu.jpg?raw=true "Indoor Unit (IDU)")
 
 
 **Positioning the antenna**
@@ -144,12 +151,13 @@ Bottom row: Red, Brown, Black.
 The baseplate of the Winegard Trav'ler is marked with arrows and the word "BACK" at the 0/360-degree position (North). 
 Typically I place my dish so that these arrows are aligned with true North. If using the dish as a portable unit, not bolted
 to a roof or vehicle, make sure to secure the base so that the dish cannot wiggle or fall over. 
-If the stow command / feature is used, North / "Back" is the position at which the dish will "faceplant" onto the ground/roof. 
+If the stow command / feature is used, North / "Back" is the position at which the dish will "faceplant" onto the ground/roof.
+(stow position can be manually changed in the nvs menu). 
 
 **Setting up rotor in Gpredict**
 
 In Gpredict's rotor settings, you will want to create a new rotor at 127.0.0.1:4533, with 0->180->360 mode, minimum elevation
-of 15 and maximum elevation of 90. 
+of 0 and maximum elevation of 90. 
 
 **Example setup and use procedure**
 
@@ -175,7 +183,7 @@ Some of these steps could be combined with Satdump, which can also handle the ro
 Personally I like to track the current satellite in N2YO.com alongside the other windows, just to see where it is. I 
 also have a security camera aimed at my dish so I can watch it moving from my computer. 
 
-![S-Band Ground control setup](images/ground_control.jpg?raw=true "Ground control setup")
+
 
 
 
