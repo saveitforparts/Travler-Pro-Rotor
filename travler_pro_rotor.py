@@ -1,11 +1,11 @@
-#Python program to control Winegard Trav'ler antenna as an AZ/EL Rotor
+#Python program to control Winegard Trav'ler Pro antenna as an AZ/EL Rotor
 #Version 2.0
-#Fixes delay issue from prior versions
 #Gabe Emerson / Saveitforparts 2025, Email: gabe@saveitforparts.com
 
 import serial
 import socket 
 import regex as re
+import time
 
 #initialize some variables
 current_az = 0.0  
@@ -24,8 +24,14 @@ antenna = serial.Serial(
 print ('Antenna connected on ', antenna.port)
 
 #Prep the Trav'ler firmware to accept commands
+antenna.write(bytes(b'q\r')) #go back to root menu in case ODU firmware was left in a submenu
+time.sleep(1) #don't send commands too fast
+antenna.write(bytes(b'\r')) #clear firmware prompt to avoid unknown command errors
+time.sleep(1) #don't send commands too fast
 antenna.write(bytes(b'odu\r')) #Tunnel to ODU if talking to IDU
-antenna.write(bytes(b'q\r')) #go back to root menu in case firmware was left in a submenu
+time.sleep(1) #don't send commands too fast
+antenna.write(bytes(b'\r')) #clear firmware prompt to avoid unknown command errors
+antenna.write(bytes(b'q\r')) #go back to root menu in case ODU firmware was left in a submenu
 antenna.write(bytes(b'\r')) #clear firmware prompt to avoid unknown command errors
 antenna.write(bytes(b'mot\r')) #enter motor submenu
 
