@@ -28,6 +28,7 @@ LG-2112 that can elevate fully to 90 degrees.
 
 This code is experimental and will probably void the warranty on any antenna you try it with. Use at your own risk! 
 
+![Trav'ler Pro](imageFolder/travler_pro.jpg)
 
 
 **Applications:**
@@ -53,7 +54,11 @@ but I have not noticed any issues mixing 50 and 75-ohm wiring at S-band frequenc
 
 It might be possible to add a slightly larger reflector, but YMMV. 
 
-Interfacing with the Trav'ler Pro requires a double-ended USB "A" cable. 
+Interfacing with the Trav'ler Pro requires a double-ended USB "A" cable. Only the rear USB port works for this. 
+
+![Indoor Unit](imageFolder/pro_idu.jpg)
+
+![Rear of Indoor Unit](imageFolder/pro_idu_rear.jpg)
 
 
 **Software Requirements:**
@@ -144,6 +149,7 @@ Top row: Green, Yellow, Orange.
 
 Bottom row: Red, Brown, Black. 
 
+![Cable Pinout](imageFolder/cable.jpg)
 
 
 **Positioning the antenna**
